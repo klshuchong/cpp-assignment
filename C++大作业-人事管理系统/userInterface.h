@@ -12,7 +12,7 @@ class userInterface
 {
 public:
 	//构造函数，将数据库指针初始化为空指针
-	userInterface() : db() {}
+	userInterface(std::istream& n_is = std::cin, std::ostream& n_os = std::cout, std::ostream& n_errs = std::cerr) : db(), is(n_is), os(n_os), errs(n_errs) {}
 
 	//不要自动生成下列函数
 	userInterface(const userInterface&) = delete;
@@ -141,4 +141,13 @@ private:
 
 	//数据库指针
 	std::shared_ptr<database> db;
+
+	//输入流
+	std::istream& is;
+
+	//输出流
+	std::ostream& os;
+
+	//错误流
+	std::ostream& errs;
 };

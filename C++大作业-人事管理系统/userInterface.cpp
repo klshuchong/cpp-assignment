@@ -33,9 +33,6 @@ userInterface::interface_type(userInterface::* const userInterface::itf[20])() =
 	&userInterface::change_password
 };
 
-using std::cout;
-using std::cerr;
-using std::cin;
 using std::endl;
 using std::string;
 using std::list;
@@ -47,8 +44,8 @@ using std::dynamic_pointer_cast;
 void userInterface::start()
 {
 	//Æô¶¯½çÃæ
-	cout << "==========ÈËÊÂ¹ÜÀíÏµÍ³£¨Ñ§Ğ£°æ£©==========" << endl;
-	cout << "ÄúÏëÒª´´½¨ĞÂÎÄ¼ş»¹ÊÇ´ò¿ªÒÑÓĞÎÄ¼ş£¿" << endl;
+	os << "==========ÈËÊÂ¹ÜÀíÏµÍ³£¨Ñ§Ğ£°æ£©==========" << endl;
+	os << "ÄúÏëÒª´´½¨ĞÂÎÄ¼ş»¹ÊÇ´ò¿ªÒÑÓĞÎÄ¼ş£¿" << endl;
 	try
 	{
 		switch (choose(list<string>{"´´½¨ĞÂÎÄ¼ş", "´ò¿ªÒÑÓĞÎÄ¼ş"}))
@@ -67,7 +64,7 @@ void userInterface::start()
 	//´¦ÀíÒì³£
 	catch (const MyException& ex)
 	{
-		cerr << ex.info() << endl;
+		errs << ex.info() << endl;
 		return;
 	}
 
@@ -78,13 +75,13 @@ void userInterface::start()
 	interface_type current_itf = menu_t; //µ±Ç°½çÃæÀàĞÍ£¬³õÖµÎªÖ÷²Ëµ¥
 	try
 	{
-		cout << string(32, '=');//Êä³ö32¸ö=
+		os << string(32, '=');//Êä³ö32¸ö=
 		while (current_itf != exit_t)
 			current_itf = (this->*itf[(int)current_itf])();
 	}
 	catch (const MyException& ex)
 	{
-		cerr << ex.info() << endl;
+		errs << ex.info() << endl;
 		return;
 	}
 
@@ -97,17 +94,17 @@ int userInterface::choose(const list<string>& msg, const string& quit_msg = "ÍË³
 	//´òÓ¡Ñ¡ÏîÁĞ±í
 	int i = 0;
 	for (auto itr = msg.begin(); itr != msg.end(); itr++, i++)
-		cout << i << ". " << *itr << endl;
-	cout << i << ". " << quit_msg << endl;
-	cout << "ÇëÊäÈëÑ¡ÏîÇ°µÄ±àºÅ...";
+		os << i << ". " << *itr << endl;
+	os << i << ". " << quit_msg << endl;
+	os << "ÇëÊäÈëÑ¡ÏîÇ°µÄ±àºÅ...";
 
 	//´¦ÀíÊäÈë£¬Ö±µ½ÊäÈëºÏ·¨ÎªÖ¹
 	int choice; //ÊäÈëµÄÕûÊı
-	while (!(cin >> choice) || choice<0 || choice>msg.size())
+	while (!(is >> choice) || choice<0 || choice>msg.size())
 	{
-		cin.clear();
-		cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		cerr << "ÊäÈë±ØĞëÎª²»³¬¹ı" << msg.size() << "µÄ·Ç¸ºÕûÊı¡£ÇëÖØĞÂÊäÈë£º";
+		is.clear();
+		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		errs << "ÊäÈë±ØĞëÎª²»³¬¹ı" << msg.size() << "µÄ·Ç¸ºÕûÊı¡£ÇëÖØĞÂÊäÈë£º";
 	}
 
 	if (choice == msg.size())return -1;
@@ -125,17 +122,17 @@ string userInterface::input_password()
 			if (ans.length() > 0)
 			{
 				ans.pop_back();
-				cout << "\b \b";
+				os << "\b \b";
 			}
 			else
 			{
-				std::putchar('\a');//ÈôÊäÈëÄÚÈİÎª¿Õ»¹ÍË¸ñ£¬ÔòÏìÁå
+				os.put('\a');//ÈôÊäÈëÄÚÈİÎª¿Õ»¹ÍË¸ñ£¬ÔòÏìÁå
 			}
 		}
 		else
 		{
 			ans.push_back(input);
-			cout << "*";
+			os << "*";
 		}
 	}
 	return ans;
@@ -143,20 +140,20 @@ string userInterface::input_password()
 
 void userInterface::create()
 {
-	cout << "ÇëÊäÈëÎÄ¼şÃû¼æ¹«Ë¾Ãû³Æ£¨¿É°üº¬Â·¾¶£©¡£Çë×¢Òâ£¬¹«Ë¾Ãû³ÆÉèÖÃºó²»¿ÉĞŞ¸Ä¡£";
+	os << "ÇëÊäÈëÎÄ¼şÃû¼æ¹«Ë¾Ãû³Æ£¨¿É°üº¬Â·¾¶£©¡£Çë×¢Òâ£¬¹«Ë¾Ãû³ÆÉèÖÃºó²»¿ÉĞŞ¸Ä¡£";
 	string filename;
-	std::getline(cin, filename);
-	cout << "ÇëÉèÖÃÃÜÂë£¨²»ÉÙÓÚ8¸ö×Ö·û£©£º";
+	std::getline(is, filename);
+	os << "ÇëÉèÖÃÃÜÂë£¨²»ÉÙÓÚ8¸ö×Ö·û£©£º";
 	string password = input_password();
-	cout << "ÇëÔÙ´ÎÊäÈëÃÜÂë£º";
+	os << "ÇëÔÙ´ÎÊäÈëÃÜÂë£º";
 	string password2 = input_password();
 	//ÈôÁ½´ÎÊäÈëµÄÃÜÂë²»Ò»ÖÂ£¬ÔòÒªÇóÖØĞÂÊäÈë
 	while (password != password2)
 	{
-		cerr << "Á½´ÎÊäÈëµÄÃÜÂë²»Ò»ÖÂ¡£" << endl;
-		cout << "ÇëÖØĞÂÉèÖÃÃÜÂë£¨²»ÉÙÓÚ8¸ö×Ö·û£©£º";
+		errs << "Á½´ÎÊäÈëµÄÃÜÂë²»Ò»ÖÂ¡£" << endl;
+		os << "ÇëÖØĞÂÉèÖÃÃÜÂë£¨²»ÉÙÓÚ8¸ö×Ö·û£©£º";
 		password = input_password();
-		cout << "ÇëÔÙ´ÎÊäÈëÃÜÂë£º";
+		os << "ÇëÔÙ´ÎÊäÈëÃÜÂë£º";
 		password2 = input_password();
 	}
 
@@ -166,10 +163,10 @@ void userInterface::create()
 
 void userInterface::open()
 {
-	cout << "ÇëÊäÈëÎÄ¼şÃû£¨¿É°üº¬Â·¾¶£©£º";
+	os << "ÇëÊäÈëÎÄ¼şÃû£¨¿É°üº¬Â·¾¶£©£º";
 	string filename;
-	std::getline(cin, filename);
-	cout << "ÇëÊäÈëÃÜÂë£º";
+	std::getline(is, filename);
+	os << "ÇëÊäÈëÃÜÂë£º";
 	string password = input_password();
 
 	while (1)
@@ -180,17 +177,17 @@ void userInterface::open()
 		}
 		catch (const MyException& ex)
 		{
-			cerr << ex.info() << endl;
-			cout << "ÎÄ¼ş´ò¿ªÊ§°Ü¡£ÊÇ·ñÖØĞÂÑ¡ÔñÎÄ¼ş£¿";
+			errs << ex.info() << endl;
+			os << "ÎÄ¼ş´ò¿ªÊ§°Ü¡£ÊÇ·ñÖØĞÂÑ¡ÔñÎÄ¼ş£¿";
 			switch (choose(list<string>{"ÖØĞÂÑ¡ÔñÎÄ¼ş"}))
 			{
 			case -1:
 				throw MyException("");//Å×Ò»¸öÒì³££¬ÕâÑù¾ÍÄÜ½øÈëstart()µÄÒì³£´¦Àí³ÌĞò´Ó¶ø½áÊø³ÌĞò
 			case 0:
-				cout << "ÇëÊäÈëÎÄ¼şÃû£¨¿É°üº¬Â·¾¶£©£º";
+				os << "ÇëÊäÈëÎÄ¼şÃû£¨¿É°üº¬Â·¾¶£©£º";
 				string filename;
-				std::getline(cin, filename);
-				cout << "ÇëÊäÈëÃÜÂë£º";
+				std::getline(is, filename);
+				os << "ÇëÊäÈëÃÜÂë£º";
 				string password = input_password();
 				continue;
 			}
@@ -201,9 +198,9 @@ void userInterface::open()
 
 void userInterface::welcome()
 {
-	cout << "»¶Ó­Ê¹ÓÃÈËÊÂ¹ÜÀíÏµÍ³£¡" << endl;
-	cout << "Creator: Íõ½İ£¨Ñ§ºÅ£º2022010554£©" << endl;
-	cout << "¹«Ë¾Ãû³Æ£º" << db->getcurrent()->getname() << endl << endl;
+	os << "»¶Ó­Ê¹ÓÃÈËÊÂ¹ÜÀíÏµÍ³£¡" << endl;
+	os << "Creator: Íõ½İ£¨Ñ§ºÅ£º2022010554£©" << endl;
+	os << "¹«Ë¾Ãû³Æ£º" << db->getcurrent()->getname() << endl << endl;
 }
 
 userInterface::interface_type userInterface::menu()
@@ -226,7 +223,7 @@ userInterface::interface_type userInterface::view_structure()
 {
 	if (db->getcurrent()->getnodetype() != node::NodeType::Department)
 		throw NodeTypeException(node::NodeType::Department);
-	cout << *(db->getcurrent());//´òÓ¡¸Ã²¿ÃÅĞÅÏ¢
+	os << *(db->getcurrent());//´òÓ¡¸Ã²¿ÃÅĞÅÏ¢
 	list<string> choice_list;
 	auto all_child = db->getcurrent()->get_child();
 	for (auto itr = all_child.begin(); itr != all_child.end(); itr++)
@@ -251,7 +248,7 @@ userInterface::interface_type userInterface::view_structure()
 		db->to_child(goal_child);
 		if (goal_child->getnodetype() == node::NodeType::Department)//Èç¹ûÑ¡ÔñµÄÊÇ²¿ÃÅ
 		{
-			cout << "ÒÑÑ¡Ôñ " << goal_child->getname() << "[²¿ÃÅ]" << endl;
+			os << "ÒÑÑ¡Ôñ " << goal_child->getname() << "[²¿ÃÅ]" << endl;
 			switch (choose(list<string>{"×ªµ½¸Ã²¿ÃÅÊÓÍ¼", "ÖØÃüÃû¸Ã²¿ÃÅ", "ÒÆ¶¯¸Ã²¿ÃÅ", "É¾³ı¸Ã²¿ÃÅ"}, "·µ»Ø " + goal_child->getfather()->getname()))
 			{
 			case 0: return view_structure_t;
@@ -271,7 +268,7 @@ userInterface::interface_type userInterface::view_structure()
 		case 1: return add_people_t;
 		case 2: 
 			if (!(db->to_father()))//ÈôcurrentÎª¸ù½Úµã
-				cout << "µ±Ç°Îª¸ù½Úµã£¬ÎŞ·¨·µ»ØÉÏ¼¶²¿ÃÅ¡£" << endl;
+				os << "µ±Ç°Îª¸ù½Úµã£¬ÎŞ·¨·µ»ØÉÏ¼¶²¿ÃÅ¡£" << endl;
 			return view_structure_t;
 		default: return menu_t;
 		}
@@ -280,9 +277,9 @@ userInterface::interface_type userInterface::view_structure()
 
 userInterface::interface_type userInterface::add_new_dept()
 {
-	cout << "ÇëÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
+	os << "ÇëÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
 	string dept_name;
-	std::getline(cin, dept_name);
+	std::getline(is, dept_name);
 	auto new_dept = make_shared<department>(dept_name);
 	while (1)
 	{
@@ -293,20 +290,20 @@ userInterface::interface_type userInterface::add_new_dept()
 		}
 		catch (const SameNameDepartmentException& ex)
 		{
-			cerr << ex.info() << endl;
-			cout << db->getcurrent()->getname() << "ÏÂÒÑ´æÔÚ²¿ÃÅ¡°" << dept_name << "¡±¡£ÊÇ·ñÖØĞÂÊäÈë²¿ÃÅÃû³Æ£¿" << endl;
+			errs << ex.info() << endl;
+			os << db->getcurrent()->getname() << "ÏÂÒÑ´æÔÚ²¿ÃÅ¡°" << dept_name << "¡±¡£ÊÇ·ñÖØĞÂÊäÈë²¿ÃÅÃû³Æ£¿" << endl;
 			switch (choose(list<string>{"ÖØĞÂÊäÈë²¿ÃÅÃû³Æ"}, "·µ»Ø" + db->getcurrent()->getname()))
 			{
 			case 0: 
-				cout << "ÇëÖØĞÂÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
-				std::getline(cin, dept_name);
+				os << "ÇëÖØĞÂÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
+				std::getline(is, dept_name);
 				continue;
 			default: return view_structure_t;
 			}
 		}
 		break;
 	}
-	cout << "²¿ÃÅÌí¼Ó³É¹¦¡£" << endl;
+	os << "²¿ÃÅÌí¼Ó³É¹¦¡£" << endl;
 	db->to_child(new_dept);
 	return view_structure_t;
 }
@@ -315,9 +312,9 @@ userInterface::interface_type userInterface::rename_dept()
 {
 	if (db->getcurrent()->getnodetype() != node::NodeType::Department)
 		throw NodeTypeException(node::NodeType::Department);
-	cout << "ÊäÈëĞÂÃû³Æ£º";
+	os << "ÊäÈëĞÂÃû³Æ£º";
 	string new_dept_name;
-	std::getline(cin, new_dept_name);
+	std::getline(is, new_dept_name);
 	auto n_dept = dynamic_pointer_cast<department, node>(db->getcurrent());
 	db->to_father();
 	while (1)
@@ -328,26 +325,26 @@ userInterface::interface_type userInterface::rename_dept()
 		}
 		catch (const SameNameDepartmentException& ex)
 		{
-			cerr << ex.info() << endl;
-			cout << db->getcurrent()->getname() << "ÏÂÒÑ´æÔÚ²¿ÃÅ¡°" << new_dept_name << "¡±¡£ÊÇ·ñÖØĞÂÊäÈë²¿ÃÅÃû³Æ£¿" << endl;
+			errs << ex.info() << endl;
+			os << db->getcurrent()->getname() << "ÏÂÒÑ´æÔÚ²¿ÃÅ¡°" << new_dept_name << "¡±¡£ÊÇ·ñÖØĞÂÊäÈë²¿ÃÅÃû³Æ£¿" << endl;
 			switch (choose(list<string>{"ÖØĞÂÊäÈë²¿ÃÅÃû³Æ"}, "·µ»Ø" + db->getcurrent()->getname()))
 			{
 			case 0:
-				cout << "ÇëÖØĞÂÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
-				std::getline(cin,  new_dept_name);
+				os << "ÇëÖØĞÂÊäÈëĞÂ²¿ÃÅµÄÃû³Æ£º";
+				std::getline(is,  new_dept_name);
 				continue;
 			default: return view_structure_t;
 			}
 		}
 		break;
 	}
-	cout << "²¿ÃÅÖØÃüÃû³É¹¦¡£" << endl;
+	os << "²¿ÃÅÖØÃüÃû³É¹¦¡£" << endl;
 	return view_structure_t;
 }
 
 userInterface::interface_type userInterface::move_dept()
 {
-	cout << "ÇëÑ¡ÔñÒªÒÆ¶¯µ½µÄ²¿ÃÅ¡£" << endl;
+	os << "ÇëÑ¡ÔñÒªÒÆ¶¯µ½µÄ²¿ÃÅ¡£" << endl;
 	auto n_dept = db->getcurrent();
 	auto original_father = n_dept->getfather();
 	n_dept->setfather(shared_ptr<department>());//ÏÈ½«n_dept´Ó×éÖ¯ÍÑÀë£¬·ÀÖ¹×éÖ¯³É»·
@@ -357,7 +354,7 @@ userInterface::interface_type userInterface::move_dept()
 	int choice, dept_num;
 	while (1)
 	{
-		cout << "µ±Ç°ä¯ÀÀ²¿ÃÅ£º" << db->getcurrent()->getname() << endl;
+		os << "µ±Ç°ä¯ÀÀ²¿ÃÅ£º" << db->getcurrent()->getname() << endl;
 		all_child = db->getcurrent()->get_child();
 		dept_num = 0;
 		for (auto itr = all_child.begin(); itr != all_child.end(); itr++)
@@ -399,12 +396,12 @@ userInterface::interface_type userInterface::move_dept()
 			}
 			catch (const SameNameDepartmentException& ex)//Èô·¢Éú²¿ÃÅÖØÃû
 			{
-				cerr << ex.info() << endl;
-				cout << "²¿ÃÅ " << db->getcurrent()->getname() << " ÏÂÒÑÓĞÍ¬Ãû²¿ÃÅ£¬ÒÆ¶¯²¿ÃÅÊ§°Ü¡£" << endl;
+				errs << ex.info() << endl;
+				os << "²¿ÃÅ " << db->getcurrent()->getname() << " ÏÂÒÑÓĞÍ¬Ãû²¿ÃÅ£¬ÒÆ¶¯²¿ÃÅÊ§°Ü¡£" << endl;
 				n_dept->setfather(original_father);//½«n_deptÖØĞÂÁ´½Ó»ØÔ­Î»ÖÃ
 				break;
 			}
-			cout << "ÒÆ¶¯²¿ÃÅ³É¹¦¡£" << endl;
+			os << "ÒÆ¶¯²¿ÃÅ³É¹¦¡£" << endl;
 			break;
 		}
 		else if (choice == dept_num + 1)//ÈôÑ¡Ôñ×ªµ½ÉÏ¼¶²¿ÃÅ
@@ -418,7 +415,7 @@ userInterface::interface_type userInterface::move_dept()
 
 userInterface::interface_type userInterface::remove_dept()
 {
-	cout << "ÊÇ·ñÒªÉ¾³ı²¿ÃÅ " << db->getcurrent()->getname() << " ¼°ÆäËùÓĞÏÂÊô²¿ÃÅºÍÈËÔ±£¿" << endl;
+	os << "ÊÇ·ñÒªÉ¾³ı²¿ÃÅ " << db->getcurrent()->getname() << " ¼°ÆäËùÓĞÏÂÊô²¿ÃÅºÍÈËÔ±£¿" << endl;
 	switch (choose(list<string>{"ÊÇ"}, "·ñ"))
 	{
 	case 0: 
@@ -427,7 +424,7 @@ userInterface::interface_type userInterface::remove_dept()
 			db->to_father();
 			temp->setfather(shared_ptr<department>());
 		}
-		cout << "É¾³ı²¿ÃÅ³É¹¦¡£" << endl;
+		os << "É¾³ı²¿ÃÅ³É¹¦¡£" << endl;
 		break;
 	default:break;
 	}
@@ -436,7 +433,7 @@ userInterface::interface_type userInterface::remove_dept()
 
 userInterface::interface_type userInterface::clear_structure()
 {
-	cout << "Äú½«ÒªÖ´ĞĞÇå³ı×éÖ¯¼Ü¹¹²Ù×÷£¬ÇëÊäÈëÃÜÂë£º";
+	os << "Äú½«ÒªÖ´ĞĞÇå³ı×éÖ¯¼Ü¹¹²Ù×÷£¬ÇëÊäÈëÃÜÂë£º";
 	string password = input_password();
 	try
 	{
@@ -444,14 +441,14 @@ userInterface::interface_type userInterface::clear_structure()
 	}
 	catch (const PasswordException& ex)//Èô²¶»ñÒì³££¬ËµÃ÷ÃÜÂë´íÎó
 	{
-		cout << "ÃÜÂë´íÎó£¬È¡ÏûÇå³ı×éÖ¯¼Ü¹¹²Ù×÷¡£" << endl;
+		os << "ÃÜÂë´íÎó£¬È¡ÏûÇå³ı×éÖ¯¼Ü¹¹²Ù×÷¡£" << endl;
 	}
 	return view_structure_t;
 }
 
 userInterface::interface_type userInterface::add_people()
 {
-	cout << "ÇëÑ¡ÔñĞÂÈËÔ±µÄÀàĞÍ£º";
+	os << "ÇëÑ¡ÔñĞÂÈËÔ±µÄÀàĞÍ£º";
 	node::NodeType p_type;
 	switch (choose(list<string>{"Ñ§Éú", "ÑĞ¾¿Éú", "½ÌÊ¦", "½ÌÊÚ", "Öú½Ì"}))
 	{
@@ -462,15 +459,15 @@ userInterface::interface_type userInterface::add_people()
 	case 4: p_type = node::Ta; break;
 	default: return view_structure_t;
 	}
-	cout << "ÇëÊäÈëĞÂÈËÔ±µÄĞÕÃû£º";
+	os << "ÇëÊäÈëĞÂÈËÔ±µÄĞÕÃû£º";
 	string name;
-	std::getline(cin, name);
+	std::getline(is, name);
 	string id_card;
 	shared_ptr<People> new_people;
 	while (1)
 	{
-		cout << "ÇëÊäÈëĞÂÈËÔ±µÄÉí·İÖ¤ºÅ£º";
-		std::getline(cin, id_card);
+		os << "ÇëÊäÈëĞÂÈËÔ±µÄÉí·İÖ¤ºÅ£º";
+		std::getline(is, id_card);
 		try
 		{
 			switch (p_type)
@@ -484,8 +481,8 @@ userInterface::interface_type userInterface::add_people()
 		}
 		catch (const MyException& ex)
 		{
-			cout << ex.info() << endl;
-			cout << "Éí·İÖ¤ºÅ²»ºÏ·¨»òÒÑ´æÔÚ¡£ÊÇ·ñÖØĞÂÊäÈë£¿";
+			os << ex.info() << endl;
+			os << "Éí·İÖ¤ºÅ²»ºÏ·¨»òÒÑ´æÔÚ¡£ÊÇ·ñÖØĞÂÊäÈë£¿";
 			switch (choose(list<string>{"ÊÇ"}))
 			{
 			case 0: continue;
@@ -496,20 +493,20 @@ userInterface::interface_type userInterface::add_people()
 	}
 	if ((int)p_type >= 5)//Èç¹ûÈËÔ±Îª½ÌÊ¦Àà
 	{
-		cout << "ÇëÊäÈëĞÂÈËÔ±µÄÔÂĞ½£¨Ôª£©£º";
+		os << "ÇëÊäÈëĞÂÈËÔ±µÄÔÂĞ½£¨Ôª£©£º";
 		unsigned int pay;
-		while (!(cin >> pay))
+		while (!(is >> pay))
 		{
-			cin.clear();
-			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-			cerr << "ÊäÈë±ØĞëÎª·Ç¸ºÕûÊı¡£ÇëÖØĞÂÊäÈë£º";
+			is.clear();
+			is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			errs << "ÊäÈë±ØĞëÎª·Ç¸ºÕûÊı¡£ÇëÖØĞÂÊäÈë£º";
 		}
 		auto new_teacher = dynamic_pointer_cast<teacher, People>(new_people);
 		new_teacher->setpay(pay);
 	}
 	auto cur_dept = dynamic_pointer_cast<department, node>(db->getcurrent());
 	new_people->setfather(cur_dept);
-	cout << "ÈËÔ±Ìí¼Ó³É¹¦¡£" << endl;
+	os << "ÈËÔ±Ìí¼Ó³É¹¦¡£" << endl;
 	db->to_child(new_people);
 	return view_people_t;
 }
