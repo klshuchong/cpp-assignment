@@ -510,3 +510,72 @@ userInterface::interface_type userInterface::add_people()
 	db->to_child(new_people);
 	return view_people_t;
 }
+
+userInterface::interface_type userInterface::view_people()
+{
+	if (db->getcurrent()->getnodetype() == node::Department)
+		throw NodeTypeException(node::People);
+	os << *(db->getcurrent());
+	list<string> choice_list{ "更新人员信息", "改变所属部门", "查看人员所在部门", "删除人员" };
+	if (db->getcurrent()->getnodetype() == node::Graduate || db->getcurrent()->getnodetype() == node::Ta)//如果该人员为研究生或助教
+	{
+		choice_list.push_back("查看导师信息");
+		choice_list.push_back("设置导学关系");
+		choice_list.push_back("解除导学关系");
+		switch (choose(choice_list, "返回主菜单"))
+		{
+		case 0: return update_people_t;
+		case 1: return move_people_t;
+		case 2:
+			db->to_father();
+			return view_structure_t;
+		case 3: return remove_people_t;
+		case 4:
+		{
+			auto cur_gra = dynamic_pointer_cast<graduate, node>(db->getcurrent());
+			os << *(cur_gra->getadvisor());
+			os << "请按任意键继续...";
+			is.get();
+			return view_people_t;
+		}
+		case 5: return set_advisor_t;
+		case 6: return remove_advisor_t;
+		default: return menu_t;
+		}
+	}
+	else if (db->getcurrent()->getnodetype() == node::Prof)
+	{
+		choice_list.push_back("查看学生信息");
+		switch (choose(choice_list, "返回主菜单"))
+		{
+		case 0: return update_people_t;
+		case 1: return move_people_t;
+		case 2:
+			db->to_father();
+			return view_structure_t;
+		case 3: return remove_people_t;
+		case 4: 
+		{
+			auto cur_prof = dynamic_pointer_cast<prof, node>(db->getcurrent());
+			cur_prof->print_stus(os);
+			os << "请按任意键继续...";
+			is.get();
+			return view_people_t;
+		}
+		default: return menu_t;
+		}
+	}
+	else
+	{
+		switch (choose(choice_list, "返回主菜单"))
+		{
+		case 0: return update_people_t;
+		case 1: return move_people_t;
+		case 2:
+			db->to_father();
+			return view_structure_t;
+		case 3: return remove_people_t;
+		default: return menu_t;
+		}
+	}
+}

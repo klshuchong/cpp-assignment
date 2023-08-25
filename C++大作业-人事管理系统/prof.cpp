@@ -17,11 +17,17 @@ using std::shared_ptr;
 
 void prof::print_stus(ostream& os) const
 {
-	os << name << "教授的学生姓名：" << endl;
-	int i = 0;
-	for (auto itr = stus.begin(); itr != stus.end(); itr++, i++)
+	if (stus.empty())
 	{
-		os << std::setw(6) << i << (*itr)->getname() << endl;
+		os << "该教授没有学生。" << endl;
+	}
+	else
+	{
+		os << "该教授共有" << stus.size() << "名学生，以下为各学生的信息：" << endl << endl;
+		for (auto itr = stus.begin(); itr != stus.end(); itr++)
+		{
+			os << **itr << endl;
+		}
 	}
 }
 
