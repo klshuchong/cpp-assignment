@@ -83,10 +83,10 @@ public:
 	//该函数也可用于移动人员
 	void add_new_people(std::shared_ptr<People>& n_people);
 
-	//更新current指向的人员信息，若出现下列情况之一则抛异常：
+	//更新current指向的人员信息，若n_name和n_id_card中某个为空字符串，则不更新对应的信息。若出现下列情况之一则抛异常：
 	//1.current指向部门
 	//2.新的身份证号与其他人员的身份证号相同
-	void update_people_info(const std::string& n_name, const std::string& n_id_card, unsigned int n_pay = 0);
+	void update_people_info(const std::string& n_name = std::string(), const std::string& n_id_card = std::string(), unsigned int n_pay = 0);
 
 	//删除current指向的人员，若current指向部门则抛异常
 	//进行此操作后，current变为原来所指向节点的父节点

@@ -404,8 +404,8 @@ void database::update_people_info(const string& n_name, const string& n_id_card,
 
 	//更改信息
 	auto cur_people = dynamic_pointer_cast<People, node>(current);
-	cur_people->setidcard(n_id_card);//此步可能因身份证号重复抛异常
-	cur_people->setname(n_name);
+	if (n_id_card.length() > 0)cur_people->setidcard(n_id_card);//此步可能因身份证号重复抛异常
+	if (n_name.length() > 0)cur_people->setname(n_name);
 	if ((int)(cur_people->getnodetype()) >= 5)//若为教师类人员
 	{
 		auto cur_teacher = dynamic_pointer_cast<teacher, People>(cur_people);

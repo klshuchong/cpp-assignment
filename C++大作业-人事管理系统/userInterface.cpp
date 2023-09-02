@@ -481,7 +481,7 @@ userInterface::interface_type userInterface::add_people()
 		}
 		catch (const MyException& ex)
 		{
-			os << ex.info() << endl;
+			errs << ex.info() << endl;
 			os << "身份证号不合法或已存在。是否重新输入？";
 			switch (choose(list<string>{"是"}))
 			{
@@ -578,4 +578,188 @@ userInterface::interface_type userInterface::view_people()
 		default: return menu_t;
 		}
 	}
+}
+
+userInterface::interface_type userInterface::search_people()
+{
+	os << "选择查找方式：" << endl;
+	switch (choose(list<string>{"按姓名查找", "按身份证号查找", "按编号查找"}, "返回主菜单"))
+	{
+	case 0:
+	{
+		os << "输入姓名：";
+		string name;
+		std::getline(is, name);
+		auto result = db->search_people_by_name(name);
+		if (result.empty())
+		{
+			os << "系统中未查找到名为 " << name << " 的人员。" << endl;
+			
+		}
+		else
+		{
+			for (auto itr = result.begin(); itr != result.end(); itr++)
+				os << **itr << endl;
+		}
+	}
+	break;
+	case 1:
+	{
+		os << "输入身份证号：";
+		string id_card;
+		std::getline(is, id_card);
+		auto result = db->search_people_by_id_card(id_card);
+		if (result)os << *result << endl;
+		else os << "系统中找不到身份证号为 " << id_card << " 的人员。" << endl;
+	}
+	break;
+	case 2:
+	{
+		os << "输入人员编号：";
+		int people_uid;
+		while (!(is >> people_uid))
+		{
+			is.clear();
+			is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			errs << "输入的必须为整数。请重新输入：";
+		}
+		auto result = db->search_people_by_people_uid(people_uid);
+		if (result)os << *result << endl;
+		else os << "系统中找不到编号为 " << people_uid << " 的人员。" << endl;
+	}
+	break;
+	default: return menu_t;
+	}
+	os << "请按任意键继续...";
+	is.get();
+	return menu_t;
+}
+
+userInterface::interface_type userInterface::view_all_people()
+{
+	os << "请选择要查看的人员类型：" << endl;
+	list<shared_ptr<People>> people_list;
+	switch (choose(list<string>{"学生", "研究生", "教师", "教授", "助教"}, "返回主菜单"))
+	{
+	case 0: people_list = db->sort_people_by_people_uid(node::Student); break;
+	case 1: people_list = db->sort_people_by_people_uid(node::Graduate); break;
+	case 2: people_list = db->sort_people_by_people_uid(node::Teacher); break;
+	case 3: people_list = db->sort_people_by_people_uid(node::Prof); break;
+	case 4: people_list = db->sort_people_by_people_uid(node::Ta); break;
+	default: return menu_t;
+	}
+	if (people_list.empty())
+		os << "系统中暂无属于您查找的类型的人员。" << endl;
+	else
+	{
+		for (auto itr = people_list.begin(); itr != people_list.end(); itr++)
+			os << **itr << endl;
+	}
+	os << "请按任意键继续...";
+	is.get();
+	return menu_t;
+}
+
+userInterface::interface_type userInterface::update_people()
+{
+	os << "请按照系统提示输入新的人员信息，若空白则表示不更改。" << endl;
+	string original_name = db->getcurrent()->getname();
+	os << "新的姓名：";
+	string name;
+	std::getline(is, name);
+	string id_card;
+	while (1)
+	{
+		os << "新的身份证号：";
+		std::getline(is, id_card);
+		try
+		{
+			db->update_people_info(name, id_card);
+		}
+		catch (const IDException& ex)
+		{
+			errs << ex.info() << endl;
+			os << "身份证号不合法或已存在。是否重新输入？" << endl;
+			switch (choose(list<string>{"是"}, "撤销更改并返回人员视图"))
+			{
+			case 0: continue;
+			default: 
+				db->update_people_info(original_name);
+				return view_people_t;
+			}
+		}
+		break;
+	}
+	if ((int)(db->getcurrent()->getnodetype()) >= 5)//如果当前人员为教师类
+	{
+		os << "月薪：";
+		unsigned int pay;
+		if (!(is >> pay))
+		{
+			is.clear();
+			is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		}
+		else
+		{
+			db->update_people_info(name, id_card, pay);
+		}
+	}
+	os << "人员信息修改成功。" << endl;
+	return view_people_t;
+}
+
+userInterface::interface_type userInterface::move_people()
+{
+	os << "请选择要移动到的部门。" << endl;
+	auto n_people = db->getcurrent();
+	auto original_father = n_people->getfather();
+	while (db->to_father());//将db的current移到根节点
+	set<shared_ptr<node>, defaultNodeCmp> all_child;
+	list<string> choice_list;
+	int choice, dept_num;
+	while (1)
+	{
+		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
+		all_child = db->getcurrent()->get_child();
+		dept_num = 0;
+		for (auto itr = all_child.begin(); itr != all_child.end(); itr++)
+		{
+			if ((*itr)->getnodetype() == node::NodeType::Department)
+			{
+				choice_list.push_back("转到 " + (*itr)->getname());
+				dept_num++;
+			}
+			else break;
+		}
+		choice_list.push_back("移动到此处");
+		if (db->getcurrent()->getfather())
+			choice_list.push_back("返回 " + db->getcurrent()->getfather()->getname());
+		choice = choose(choice_list, "取消移动人员");
+		if (choice == -1)break;
+		else if (choice < dept_num)//若选择转到下级部门
+		{
+			auto itr = all_child.begin();
+			int i = 0;
+			while (i < choice)//将itr移到要转到的下级部门
+			{
+				i++;
+				itr++;
+			}
+			db->to_child(*itr);
+			continue;
+		}
+		else if (choice == dept_num)//若选择移动到该部门
+		{
+			auto n_people_people = dynamic_pointer_cast<People, node>(n_people);
+			db->add_new_people(n_people_people);
+			os << "移动人员成功。" << endl;
+			break;
+		}
+		else if (choice == dept_num + 1)//若选择转到上级部门
+		{
+			db->to_father();
+			continue;
+		}
+	}
+	return view_people_t;
 }
