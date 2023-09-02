@@ -139,6 +139,9 @@ private:
 	//指向各个界面函数的函数指针数组
 	static interface_type(userInterface::* const itf[20])();
 
+	//文件名
+	std::string filename;
+
 	//数据库指针
 	std::shared_ptr<database> db;
 

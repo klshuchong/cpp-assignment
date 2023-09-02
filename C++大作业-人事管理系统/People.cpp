@@ -12,6 +12,7 @@
 const char People::default_name[node::NAME_MAX_LENGTH] = "default people name";
 const char People::default_id[19] = "100000200001010017";
 const int People::id_weight[17] = { 7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2 };
+std::set<std::string> People::id_set;
 unsigned int People::max_people_uid = 0;
 
 using std::ostream;

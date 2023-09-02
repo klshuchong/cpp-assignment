@@ -44,6 +44,7 @@ public:
 	{
 		if (!current->getfather())return false;
 		current = current->getfather();
+		return true;
 	}
 
 	//将current移到其子节点n_child，若current指向的节点不存在子节点n_child或current指向的是People则返回false，否则移动current并返回true

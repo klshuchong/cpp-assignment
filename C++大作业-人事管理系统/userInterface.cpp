@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <conio.h>
+#include <vector>
 #include <list>
 #include <memory>
 #include "userInterface.h"
@@ -35,6 +36,7 @@ userInterface::interface_type(userInterface::* const userInterface::itf[20])() =
 
 using std::endl;
 using std::string;
+using std::vector;
 using std::list;
 using std::set;
 using std::shared_ptr;
@@ -89,7 +91,7 @@ void userInterface::start()
 	this->exit();
 }
 
-int userInterface::choose(const list<string>& msg, const string& quit_msg = "退出")
+int userInterface::choose(const list<string>& msg, const string& quit_msg)
 {
 	//打印选项列表
 	int i = 0;
@@ -141,7 +143,6 @@ string userInterface::input_password()
 void userInterface::create()
 {
 	os << "请输入文件名兼公司名称（可包含路径）。请注意，公司名称设置后不可修改。";
-	string filename;
 	std::getline(is, filename);
 	os << "请设置密码（不少于8个字符）：";
 	string password = input_password();
@@ -164,7 +165,6 @@ void userInterface::create()
 void userInterface::open()
 {
 	os << "请输入文件名（可包含路径）：";
-	string filename;
 	std::getline(is, filename);
 	os << "请输入密码：";
 	string password = input_password();
@@ -439,7 +439,7 @@ userInterface::interface_type userInterface::clear_structure()
 	{
 		db->clear_structure(password);
 	}
-	catch (const PasswordException& ex)//若捕获异常，说明密码错误
+	catch (const PasswordException&)//若捕获异常，说明密码错误
 	{
 		os << "密码错误，取消清除组织架构操作。" << endl;
 	}
@@ -762,4 +762,265 @@ userInterface::interface_type userInterface::move_people()
 		}
 	}
 	return view_people_t;
+}
+
+userInterface::interface_type userInterface::remove_people()
+{
+	os << "您确定要删除人员 " << db->getcurrent()->getname() << " 吗？";
+	switch (choose(list<string>{"是"}))
+	{
+	case 0: 
+		db->delete_people();
+		return view_structure_t;
+	default: return view_people_t;
+	}
+}
+
+userInterface::interface_type userInterface::set_advisor()
+{
+	if (db->getcurrent()->getnodetype() != node::Graduate && db->getcurrent()->getnodetype() != node::Ta)
+		throw NodeTypeException(node::Graduate);
+	auto cur_gra = dynamic_pointer_cast<graduate, node>(db->getcurrent());
+	if (cur_gra->getadvisor())
+	{
+		os << "该研究生已有导师，请先解除与原导师的关系后再设置导师。" << endl;
+		return view_people_t;
+	}
+
+	os << "请选择导师。" << endl;
+	while (db->to_father());//将db的current移到根节点
+	set<shared_ptr<node>, defaultNodeCmp> all_child;
+	list<string> choice_list;
+	vector<shared_ptr<prof>> prof_vec;
+	int choice, dept_num;
+	while (1)
+	{
+		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
+		all_child = db->getcurrent()->get_child();
+		dept_num = 0;
+		prof_vec.clear();
+		for (auto itr = all_child.begin(); itr != all_child.end(); itr++)
+		{
+			if ((*itr)->getnodetype() == node::NodeType::Department)
+			{
+				choice_list.push_back("转到 " + (*itr)->getname());
+				dept_num++;
+			}
+			else if ((*itr)->getnodetype() == node::NodeType::Prof)
+			{
+				choice_list.push_back("设置导师为 " + (*itr)->getname());
+				prof_vec.push_back(dynamic_pointer_cast<prof, node>(*itr));
+			}
+		}
+		if (db->getcurrent()->getfather())
+			choice_list.push_back("返回 " + db->getcurrent()->getfather()->getname());
+		choice = choose(choice_list, "取消设置导师");
+		if (choice == -1)break;
+		else if (choice < dept_num)//若选择转到下级部门
+		{
+			auto itr = all_child.begin();
+			int i = 0;
+			while (i < choice)//将itr移到要转到的下级部门
+			{
+				i++;
+				itr++;
+			}
+			db->to_child(*itr);
+			continue;
+		}
+		else if (choice < dept_num + prof_vec.size())//若选择了某个导师
+		{
+			db->assign_advisor(prof_vec[choice - dept_num]);
+			os << "设置导师成功。" << endl;
+			break;
+		}
+		else if (choice == dept_num + prof_vec.size() + 1)//若选择转到上级部门
+		{
+			db->to_father();
+			continue;
+		}
+	}
+	return view_people_t;
+}
+
+userInterface::interface_type userInterface::remove_advisor()
+{
+	if (db->getcurrent()->getnodetype() != node::Graduate && db->getcurrent()->getnodetype() != node::Ta)
+		throw NodeTypeException(node::Graduate);
+	auto cur_gra = dynamic_pointer_cast<graduate, node>(db->getcurrent());
+	if (!(cur_gra->getadvisor()))
+	{
+		os << "该研究生暂无导师。" << endl;
+		return view_people_t;
+	}
+	os << "您确定要解除 " << cur_gra->getname() << " 与 " << cur_gra->getadvisor()->getname() <<" 的导学关系吗？";
+	switch (choose(list<string>{"是"}))
+	{
+	case 0:
+		db->remove_advisor();
+		os << "解除导学关系成功。" << endl;
+	}
+	return view_people_t;
+}
+
+userInterface::interface_type userInterface::sort_people()
+{
+	os << "请选择排序方式。";
+	node::NodeType n_type;
+	int choice;
+	switch (choose(list<string>{"按编号排序", "按月薪排序"}))
+	{
+	case 0: 
+	{
+		list<shared_ptr<People>> result;
+		os << "请选择被排序人员类型。";
+		choice = choose(list<string>{"学生", "研究生", "教师", "教授", "助教"});
+		if (choice >= 0)
+		{
+			n_type = (node::NodeType)(choice + 3);
+			os << "请选择排序顺序。";
+			switch (choose(list<string>{"升序", "降序"}))
+			{
+			case 0: 
+				result = db->sort_people_by_people_uid(n_type, true);
+				if (result.size() > 0)
+				{
+					for (auto itr = result.begin(); itr != result.end(); itr++)
+						os << **itr << endl;
+				}
+				else os << "系统中找不到该类人员。" << endl;
+				break;
+			case 1:
+				result = db->sort_people_by_people_uid(n_type, false);
+				if (result.size() > 0)
+				{
+					for (auto itr = result.begin(); itr != result.end(); itr++)
+						os << **itr << endl;
+				}
+				else os << "系统中找不到该类人员。" << endl;
+				break;
+			}
+		}
+	}
+	break;
+	case 1:
+	{
+		list<shared_ptr<teacher>> result;
+		os << "请选择被排序人员类型。";
+		choice = choose(list<string>{"教师", "教授", "助教"});
+		if (choice >= 0)
+		{
+			n_type = (node::NodeType)(choice + 5);
+			os << "请选择排序顺序。";
+			switch (choose(list<string>{"升序", "降序"}))
+			{
+			case 0:
+				result = db->sort_teacher_by_pay(n_type, true);
+				if (result.size() > 0)
+				{
+					for (auto itr = result.begin(); itr != result.end(); itr++)
+						os << **itr << endl;
+				}
+				else os << "系统中找不到该类人员。" << endl;
+				break;
+			case 1:
+				result = db->sort_teacher_by_pay(n_type, false);
+				if (result.size() > 0)
+				{
+					for (auto itr = result.begin(); itr != result.end(); itr++)
+						os << **itr << endl;
+				}
+				else os << "系统中找不到该类人员。" << endl;
+				break;
+			}
+		}
+	}
+	break;
+	}
+	return menu_t;
+}
+
+userInterface::interface_type userInterface::clear_people()
+{
+	os << "您将要执行清除人员操作，请输入密码：";
+	string password = input_password();
+	try
+	{
+		db->clear_people(password);
+	}
+	catch (const PasswordException&)//若捕获异常，说明密码错误
+	{
+		os << "密码错误，取消清除组织架构操作。" << endl;
+	}
+	return view_structure_t;
+}
+
+userInterface::interface_type userInterface::save_new()
+{
+	os << "请输入新的文件名（可包含路径）：";
+	string n_filename;
+	std::getline(is, n_filename);
+	while (n_filename == filename)
+	{
+		errs << "新文件名与原文件名相同。是否重新输入？" << endl;
+		switch (choose(list<string>{"是"}))
+		{
+		case 0:
+			os << "请输入新的文件名（可包含路径）：";
+			std::getline(is, n_filename);
+			break;
+		default: return menu_t;
+		}
+	}
+	try
+	{
+		db->save(n_filename);
+	}
+	catch (const FileException& ex)
+	{
+		errs << ex.info() << endl << "数据保存失败。" << endl;
+		return menu_t;
+	}
+	os << "数据已成功另存到文件夹" << n_filename << "。" << endl;
+	return menu_t;
+}
+
+userInterface::interface_type userInterface::change_password()
+{
+	os << "请输入原来的密码：";
+	string original_pwd = input_password();
+	if (!(db->verify_password(original_pwd)))
+	{
+		errs << "密码错误，修改密码操作结束。" << endl;
+		return menu_t;
+	}
+	os << "请输入新密码：";
+	string new_pwd = input_password();
+	os << "请再次输入新密码：";
+	string new_pwd2 = input_password();
+	if (new_pwd2 != new_pwd)
+	{
+		errs << "两次输入的密码不一致，修改密码操作结束。" << endl;
+		return menu_t;
+	}
+	db->change_password(new_pwd);
+	os << "修改密码成功。" << endl;
+	return menu_t;
+}
+
+void userInterface::exit()
+{
+	os << "正在保存数据..." << endl;
+	try
+	{
+		db->save();
+	}
+	catch(const FileException& ex)
+	{
+		errs << ex.info() << endl;
+		errs << "数据保存失败。" << endl;
+		return;
+	}
+	os << "数据已成功保存到文件夹" << filename << "。" << endl;
+	os << "感谢您使用本系统，下次再见！" << endl;
 }
