@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <direct.h>
 #include "base.h"
 #include "Derived_people.h"
 #include "database.h"
@@ -26,17 +27,27 @@ using std::dynamic_pointer_cast;
 database::database(const string& n_filename, const string& password, rtype n_opentype) :filename(n_filename), opentype(n_opentype)
 {
 	//生成文件路径
-	string raw_filename = string(filename, filename.find_last_of('\\', filename.length()));//不包含路径的文件名
-	string path_com = filename + "\\" + raw_filename;
-	path.emplace_back(path_com + ".node");
-	path.emplace_back(path_com + ".department");
-	path.emplace_back(path_com + ".people");
-	path.emplace_back(path_com + ".student");
-	path.emplace_back(path_com + ".graduate");
-	path.emplace_back(path_com + ".teacher");
-	path.emplace_back(path_com + ".prof");
-	path.emplace_back(path_com + ".ta");
-	path.emplace_back(path_com + ".password");
+	int last_slash_index = filename.find_last_of('\\', filename.length());
+	string raw_filename;//不包含路径的文件名
+	if (last_slash_index == std::string::npos)
+		raw_filename = filename;
+	else raw_filename = string(filename, last_slash_index + 1);
+	
+	//创建文件夹
+	string path_com = ".\\" + filename;
+	if (_mkdir(path_com.c_str()) != 0)//若创建文件夹失败
+		throw FileException(path_com);
+	
+	path_com += (".\\" + raw_filename);
+	path.emplace_back(path_com + "_node.dat");
+	path.emplace_back(path_com + "_department.dat");
+	path.emplace_back(path_com + "_people.dat");
+	path.emplace_back(path_com + "_student.dat");
+	path.emplace_back(path_com + "_graduate.dat");
+	path.emplace_back(path_com + "_teacher.dat");
+	path.emplace_back(path_com + "_prof.dat");
+	path.emplace_back(path_com + "_ta.dat");
+	path.emplace_back(path_com + "_password.dat");
 
 	if (opentype == rtype::Create)//若新建文件
 	{

@@ -108,6 +108,9 @@ int userInterface::choose(const list<string>& msg, const string& quit_msg)
 		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		errs << "输入必须为不超过" << msg.size() << "的非负整数。请重新输入：";
 	}
+	//清除缓冲区，否则之后调用getline()时没有输入机会
+	is.clear();
+	is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 	if (choice == msg.size())return -1;
 	else return choice;
@@ -144,19 +147,21 @@ void userInterface::create()
 {
 	os << "请输入文件名兼公司名称（可包含路径）。请注意，公司名称设置后不可修改。";
 	std::getline(is, filename);
-	os << "请设置密码（不少于8个字符）：";
+	os << "请设置密码：";
 	string password = input_password();
-	os << "请再次输入密码：";
+	os << endl << "请再次输入密码：";
 	string password2 = input_password();
 	//若两次输入的密码不一致，则要求重新输入
 	while (password != password2)
 	{
+		os << endl;
 		errs << "两次输入的密码不一致。" << endl;
-		os << "请重新设置密码（不少于8个字符）：";
+		os << "请重新设置密码：";
 		password = input_password();
-		os << "请再次输入密码：";
+		os << endl << "请再次输入密码：";
 		password2 = input_password();
 	}
+	os << endl;
 
 	//创建数据库
 	db = make_shared<database>(filename, password, database::Create);
@@ -1010,17 +1015,20 @@ userInterface::interface_type userInterface::change_password()
 
 void userInterface::exit()
 {
-	os << "正在保存数据..." << endl;
-	try
+	if (db)//如果已经创建了数据库
 	{
-		db->save();
+		os << "正在保存数据..." << endl;
+		try
+		{
+			db->save();
+		}
+		catch (const FileException& ex)
+		{
+			errs << ex.info() << endl;
+			errs << "数据保存失败。" << endl;
+			return;
+		}
+		os << "数据已成功保存到文件夹" << filename << "。" << endl;
 	}
-	catch(const FileException& ex)
-	{
-		errs << ex.info() << endl;
-		errs << "数据保存失败。" << endl;
-		return;
-	}
-	os << "数据已成功保存到文件夹" << filename << "。" << endl;
 	os << "感谢您使用本系统，下次再见！" << endl;
 }
