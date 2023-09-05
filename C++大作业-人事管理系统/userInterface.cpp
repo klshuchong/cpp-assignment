@@ -69,6 +69,11 @@ void userInterface::start()
 		errs << ex.info() << endl;
 		return;
 	}
+	catch (const std::exception& ex)
+	{
+		errs << ex.what() << endl;
+		return;
+	}
 
 	//显示欢迎界面
 	welcome();
@@ -77,13 +82,20 @@ void userInterface::start()
 	interface_type current_itf = menu_t; //当前界面类型，初值为主菜单
 	try
 	{
-		os << string(32, '=');//输出32个=
 		while (current_itf != exit_t)
+		{
+			os << string(32, '=') << endl;//输出32个=
 			current_itf = (this->*itf[(int)current_itf])();
+		}
 	}
 	catch (const MyException& ex)
 	{
 		errs << ex.info() << endl;
+		return;
+	}
+	catch (const std::exception& ex)
+	{
+		errs << ex.what() << endl;
 		return;
 	}
 
@@ -173,6 +185,7 @@ void userInterface::open()
 	std::getline(is, filename);
 	os << "请输入密码：";
 	string password = input_password();
+	os << endl;
 
 	while (1)
 	{
@@ -183,17 +196,17 @@ void userInterface::open()
 		catch (const MyException& ex)
 		{
 			errs << ex.info() << endl;
-			os << "文件打开失败。是否重新选择文件？";
-			switch (choose(list<string>{"重新选择文件"}))
+			os << "文件打开失败。请检查文件路径和密码是否正确。" << endl;
+			switch (choose(list<string>{"重新输入"}))
 			{
 			case -1:
 				throw MyException("");//抛一个异常，这样就能进入start()的异常处理程序从而结束程序
 			case 0:
 				os << "请输入文件名（可包含路径）：";
-				string filename;
 				std::getline(is, filename);
 				os << "请输入密码：";
-				string password = input_password();
+				password = input_password();
+				os << endl;
 				continue;
 			}
 		}

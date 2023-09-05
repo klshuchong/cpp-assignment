@@ -29,29 +29,34 @@ void department::print(ostream& os) const
 	}
 	os << path << endl;
 
-	using std::setw;
-	os << setw(6) << "序号" << setw(10) << "类别" << "名称" << endl;
-	int i = 0;
-	for (auto itr = child.begin(); itr != child.end(); itr++, i++)
+	if (child.empty())
+		os << "该部门无下属部门或人员。" << endl;
+	else
 	{
-		os << setw(6) << i;
-		if ((*itr)->getnodetype() == node::NodeType::Department)
+		using std::setw;
+		os << setw(6) << "序号" << setw(10) << "类别" << "名称" << endl;
+		int i = 0;
+		for (auto itr = child.begin(); itr != child.end(); itr++, i++)
 		{
-			os << setw(10) << "部门" << (*itr)->getname() << endl;
-		}
-		else
-		{
-			os << setw(10);
-			switch ((*itr)->getnodetype())
+			os << setw(6) << i;
+			if ((*itr)->getnodetype() == node::NodeType::Department)
 			{
-			case node::NodeType::None:os << "人员"; break;
-			case node::NodeType::Student:os << "学生"; break;
-			case node::NodeType::Graduate:os << "研究生"; break;
-			case node::NodeType::Teacher:os << "教师"; break;
-			case node::NodeType::Prof:os << "教授"; break;
-			case node::NodeType::Ta:os << "助教"; break;
+				os << setw(10) << "部门" << (*itr)->getname() << endl;
 			}
-			os << (*itr)->getname() << endl;
+			else
+			{
+				os << setw(10);
+				switch ((*itr)->getnodetype())
+				{
+				case node::NodeType::None:os << "人员"; break;
+				case node::NodeType::Student:os << "学生"; break;
+				case node::NodeType::Graduate:os << "研究生"; break;
+				case node::NodeType::Teacher:os << "教师"; break;
+				case node::NodeType::Prof:os << "教授"; break;
+				case node::NodeType::Ta:os << "助教"; break;
+				}
+				os << (*itr)->getname() << endl;
+			}
 		}
 	}
 }
