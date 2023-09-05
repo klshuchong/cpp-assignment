@@ -55,7 +55,7 @@ bool People::is_valid_id(const string& tested)
 	return test_digit < 10 && test_digit == tested[17] - '0' || test_digit == 10 && tested[17] == 'X';
 }
 
-People::People(const string& n_name, const string& n_id, const shared_ptr<department>& n_father, node::NodeType n_people_type) :node(n_name, n_people_type, n_father)
+People::People(const string& n_name, const string& n_id, node::NodeType n_people_type) :node(n_name, n_people_type)
 {
 	//设置身份证号
 	setidcard(n_id);

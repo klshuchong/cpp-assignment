@@ -19,7 +19,7 @@ using std::ofstream;
 using std::shared_ptr;
 using std::weak_ptr;
 
-node::node(const string& n_name, NodeType n_node_type, const shared_ptr<department>& n_father) : node_type(n_node_type), father(n_father)
+node::node(const string& n_name, NodeType n_node_type) : node_type(n_node_type), father()
 {
 	//设置名称
 	strcpy_s(name, n_name.c_str());
@@ -27,9 +27,6 @@ node::node(const string& n_name, NodeType n_node_type, const shared_ptr<departme
 	//设置uid并更新max_uid
 	uid = max_uid;
 	max_uid++;
-
-	//设置父节点
-	setfather(n_father);
 }
 
 node::node(ifstream& ifs, NodeType n_node_type) :node_type(n_node_type)

@@ -42,7 +42,7 @@ bool graduate::assign_advisor(const shared_ptr<prof>& n_advisor)
 	advisor_uid = advisor.lock()->getuid();
 
 	//更新导师端的信息
-	advisor.lock()->stus.insert(std::enable_shared_from_this<graduate>::shared_from_this());
+	advisor.lock()->stus.insert(std::dynamic_pointer_cast<graduate>(shared_from_this()));
 	return true;
 }
 
@@ -51,7 +51,7 @@ bool graduate::remove_advisor()
 	if (!advisor.lock())return false;
 
 	//更新导师端的信息
-	advisor.lock()->stus.erase(std::enable_shared_from_this<graduate>::shared_from_this());
+	advisor.lock()->stus.erase(std::dynamic_pointer_cast<graduate>(shared_from_this()));
 
 	advisor = shared_ptr<prof>();
 	advisor_uid = -1;

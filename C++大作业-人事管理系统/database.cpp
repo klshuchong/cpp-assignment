@@ -152,7 +152,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 					throw DataException("father of a department is itself");
 				}
 				find_father = false;
-				for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+				for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 				{
 					if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 					{
@@ -199,7 +199,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -235,7 +235,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -273,7 +273,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -313,7 +313,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{

@@ -34,14 +34,14 @@ void department::print(ostream& os) const
 	else
 	{
 		using std::setw;
-		os << setw(6) << "序号" << setw(10) << "类别" << "名称" << endl;
+		os << setw(6) << "序号" << setw(10) << "类别" << "  名称" << endl;
 		int i = 0;
 		for (auto itr = child.begin(); itr != child.end(); itr++, i++)
 		{
 			os << setw(6) << i;
 			if ((*itr)->getnodetype() == node::NodeType::Department)
 			{
-				os << setw(10) << "部门" << (*itr)->getname() << endl;
+				os << setw(10) << "部门" << "  " << (*itr)->getname() << endl;
 			}
 			else
 			{
@@ -55,7 +55,7 @@ void department::print(ostream& os) const
 				case node::NodeType::Prof:os << "教授"; break;
 				case node::NodeType::Ta:os << "助教"; break;
 				}
-				os << (*itr)->getname() << endl;
+				os << "  " << (*itr)->getname() << endl;
 			}
 		}
 	}

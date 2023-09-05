@@ -8,11 +8,11 @@
 #include "base.h"
 
 //学生类
-class student : virtual public People, public std::enable_shared_from_this<student>
+class student : virtual public People
 {
 public:
 	//构造函数
-	student(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>()) : People(n_name, n_id, n_father, node::NodeType::Student) {}
+	student(const std::string& n_name = default_name, const std::string& n_id = default_id) : People(n_name, n_id, node::NodeType::Student) {}
 
 	//构造函数（从文件中读取）
 	student(std::ifstream& ifs) :People(ifs, node::NodeType::Student) {}
@@ -36,11 +36,11 @@ private:
 class prof;
 
 //研究生类
-class graduate : public student, public std::enable_shared_from_this<graduate>
+class graduate : public student
 {
 public:
 	//构造函数(初始导师为空指针，导师uid为-1)
-	graduate(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>()) : People(n_name, n_id, n_father, node::NodeType::Graduate), advisor_uid(-1), advisor(std::shared_ptr<prof>()) {}
+	graduate(const std::string& n_name = default_name, const std::string& n_id = default_id) : People(n_name, n_id, node::NodeType::Graduate), advisor_uid(-1), advisor() {}
 
 	//构造函数（从文件中读取，初始导师为空指针，导师uid为-1）
 	graduate(std::ifstream& ifs);
@@ -82,11 +82,11 @@ private:
 };
 
 //教师类
-class teacher : virtual public People, public std::enable_shared_from_this<teacher>
+class teacher : virtual public People
 {
 public:
 	//构造函数
-	teacher(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>(), unsigned int n_pay = 0) : People(n_name, n_id, n_father, node::NodeType::Teacher), pay(n_pay) {}
+	teacher(const std::string& n_name = default_name, const std::string& n_id = default_id, unsigned int n_pay = 0) : People(n_name, n_id, node::NodeType::Teacher), pay(n_pay) {}
 
 	//构造函数（从文件中读取）
 	teacher(std::ifstream& ifs);
@@ -127,7 +127,7 @@ public:
 };
 
 //教授类
-class prof : public teacher, public std::enable_shared_from_this<prof>
+class prof : public teacher
 {
 	//graduate的与导师有关的成员函数为prof的友元函数
 	friend bool graduate::assign_advisor(const std::shared_ptr<prof>& n_advisor);
@@ -135,7 +135,7 @@ class prof : public teacher, public std::enable_shared_from_this<prof>
 
 public:
 	//构造函数
-	prof(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>(), unsigned int n_pay = 0) : People(n_name, n_id, n_father, node::NodeType::Prof), teacher(n_name, n_id, n_father, n_pay) {}
+	prof(const std::string& n_name = default_name, const std::string& n_id = default_id, unsigned int n_pay = 0) : People(n_name, n_id, node::NodeType::Prof), teacher(n_name, n_id, n_pay) {}
 
 	//构造函数（从文件中读取）
 	prof(std::ifstream& ifs) : People(ifs, node::NodeType::Prof), teacher(ifs) {}
@@ -171,11 +171,11 @@ private:
 };
 
 //助教类
-class TA : public graduate, public teacher, public std::enable_shared_from_this<TA>
+class TA : public graduate, public teacher
 {
 public:
 	//构造函数
-	TA(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>(), unsigned int n_pay = 0) : People(n_name, n_id, n_father, node::NodeType::Ta), graduate(n_name, n_id, n_father), teacher(n_name, n_id, n_father, n_pay) {}
+	TA(const std::string& n_name = default_name, const std::string& n_id = default_id, unsigned int n_pay = 0) : People(n_name, n_id, node::NodeType::Ta), graduate(n_name, n_id), teacher(n_name, n_id, n_pay) {}
 
 	//构造函数（从文件中读取）
 	TA(std::ifstream& ifs) : People(ifs, node::NodeType::Ta), graduate(ifs), teacher(ifs) {}
