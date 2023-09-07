@@ -23,7 +23,7 @@ public:
 	enum NodeType { None = 0, Department, People, Student, Graduate, Teacher, Prof, Ta };
 
 	//构造函数
-	node(const std::string& n_name = default_name, NodeType n_node_type = NodeType::None,const std::shared_ptr<department>& n_father = std::shared_ptr<department>());
+	node(const std::string& n_name = default_name, NodeType n_node_type = NodeType::None);
 
 	//构造函数（从文件中读取）
 	node(std::ifstream& ifs, NodeType n_node_type = NodeType::None);
@@ -33,7 +33,10 @@ public:
 	const node& operator=(const node&) = delete;
 
 	//析构函数（需要更新一下父亲节点）
-	virtual ~node() { setfather(nullptr); }
+	virtual ~node()
+	{
+		if (!father.expired())setfather(nullptr);
+	}
 
 	//获得姓名
 	std::string getname() const { return std::string(name); }
@@ -116,14 +119,14 @@ public:
 };
 
 //部门类
-class department : public node, public std::enable_shared_from_this<department>
+class department : public node
 {
 	//node类设置父节点的函数为department类的友元函数
 	friend bool node::setfather(const std::shared_ptr<department>& n_father);
 
 public:
 	//构造函数
-	department(const std::string& n_name = default_name, const std::shared_ptr<department>& n_father = std::shared_ptr<department>()) :node(n_name, node::NodeType::Department, n_father) {}
+	department(const std::string& n_name = default_name) :node(n_name, node::NodeType::Department) {}
 
 	//构造函数（从文件中读取）
 	department(std::ifstream& ifs) :node(ifs, node::NodeType::Department) {}
@@ -157,14 +160,14 @@ private:
 };
 
 //人员类
-class People : public node, public std::enable_shared_from_this<People>
+class People : public node
 {
 public:
 	//表示性别的枚举
 	enum Gender { None = 0, Male, Female };
 
 	//构造函数
-	People(const std::string& n_name = default_name, const std::string& n_id = default_id, const std::shared_ptr<department>& n_father = std::shared_ptr<department>(), NodeType n_node_type = NodeType::People);
+	People(const std::string& n_name = default_name, const std::string& n_id = default_id, NodeType n_node_type = NodeType::People);
 
 	//构造函数（从文件中读取）
 	People(std::ifstream& ifs, NodeType n_node_type = NodeType::People);

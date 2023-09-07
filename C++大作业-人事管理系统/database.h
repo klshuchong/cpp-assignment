@@ -13,11 +13,11 @@
 
 // 注：数据文件组织形式
 // 所有数据文件保存在一个文件夹中，该文件夹名称为[filename]
-// 保存各类对象的文件名均为[filename]后加相应的扩展名：.department, .student, .graduate, .teacher, .prof, .ta
+// 保存各类对象的文件名形如[filename]_node.dat, [filename]_department.dat之类
 // 在每个文件中，对应的类对象是线性存储的
-// 除此以外，.node文件中存储node::max_uid
-// .people文件中存储People::max_people_uid
-// .password文件中存储用SHA256加密后的密码
+// 除此以外，[filename]_node.dat文件中存储node::max_uid
+// [filename]_people.dat文件中存储People::max_people_uid
+// [filename]_password.dat文件中存储用SHA256加密后的密码
 
 //数据库类，其中存储整个公司的组织架构（树结构）
 class database
@@ -37,7 +37,7 @@ public:
 	~database() = default;
 
 	//获取当前节点
-	std::shared_ptr<node> getcurrent() const { return current; }
+	std::shared_ptr<node>& getcurrent() { return current; }
 
 	//将current移到其父节点，若current为根节点则返回false，否则移动current返回true
 	bool to_father()

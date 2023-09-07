@@ -38,5 +38,6 @@ prof::~prof()
 	{
 		shared_ptr<graduate> stu = *(stus.begin());
 		stu->remove_advisor(); //不能写*(stus.begin())->remove_advisor()，因为这会把stus.begin()删除掉
+		stus.erase(stu);
 	}
 }

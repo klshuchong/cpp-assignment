@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <direct.h>
 #include "base.h"
 #include "Derived_people.h"
 #include "database.h"
@@ -26,17 +27,29 @@ using std::dynamic_pointer_cast;
 database::database(const string& n_filename, const string& password, rtype n_opentype) :filename(n_filename), opentype(n_opentype)
 {
 	//生成文件路径
-	string raw_filename = string(filename, filename.find_last_of('\\', filename.length()));//不包含路径的文件名
+	int last_slash_index = filename.find_last_of('\\', filename.length());
+	string raw_filename;//不包含路径的文件名
+	if (last_slash_index == std::string::npos)
+		raw_filename = filename;
+	else raw_filename = string(filename, last_slash_index + 1);
+	
+	//创建文件夹
+	if (opentype == rtype::Create)
+	{
+		if (_mkdir(filename.c_str()) != 0)//若创建文件夹失败
+			throw FileException(filename);
+	}
+	
 	string path_com = filename + "\\" + raw_filename;
-	path.emplace_back(path_com + ".node");
-	path.emplace_back(path_com + ".department");
-	path.emplace_back(path_com + ".people");
-	path.emplace_back(path_com + ".student");
-	path.emplace_back(path_com + ".graduate");
-	path.emplace_back(path_com + ".teacher");
-	path.emplace_back(path_com + ".prof");
-	path.emplace_back(path_com + ".ta");
-	path.emplace_back(path_com + ".password");
+	path.emplace_back(path_com + "_node.dat");
+	path.emplace_back(path_com + "_department.dat");
+	path.emplace_back(path_com + "_people.dat");
+	path.emplace_back(path_com + "_student.dat");
+	path.emplace_back(path_com + "_graduate.dat");
+	path.emplace_back(path_com + "_teacher.dat");
+	path.emplace_back(path_com + "_prof.dat");
+	path.emplace_back(path_com + "_ta.dat");
+	path.emplace_back(path_com + "_password.dat");
 
 	if (opentype == rtype::Create)//若新建文件
 	{
@@ -106,7 +119,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		list<shared_ptr<department>> all_departments;
 
 		//读取部门
-		while (!readfile[1].eof())
+		while (readfile[1].peek() != EOF)
 			all_departments.emplace_back(make_shared<department>(readfile[1]));
 		readfile[1].close();
 
@@ -139,7 +152,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 					throw DataException("father of a department is itself");
 				}
 				find_father = false;
-				for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+				for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 				{
 					if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 					{
@@ -173,10 +186,11 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 
 		//读取People::max_people_uid
 		People::setmaxpeopleuid(readfile[2]);
+		readfile[2].close();
 
 		//读取学生
 		list<shared_ptr<student>> all_students;
-		while (!readfile[3].eof())
+		while (readfile[3].peek() != EOF)
 			all_students.emplace_back(make_shared<student>(readfile[3]));
 		readfile[3].close();
 
@@ -185,7 +199,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -212,7 +226,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 
 		//读取教师
 		list<shared_ptr<teacher>> all_teachers;
-		while (!readfile[5].eof())
+		while (readfile[5].peek() != EOF)
 			all_teachers.emplace_back(make_shared<teacher>(readfile[5]));
 		readfile[5].close();
 
@@ -221,7 +235,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -250,7 +264,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 
 		//读取教授
 		list<shared_ptr<prof>> all_profs;
-		while (!readfile[6].eof())
+		while (readfile[6].peek() != EOF)
 			all_profs.emplace_back(make_shared<prof>(readfile[6]));
 		readfile[6].close();
 
@@ -259,7 +273,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -286,10 +300,10 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 
 		//读取研究生和助教
 		list<shared_ptr<graduate>> all_graduate_and_ta;
-		while (!readfile[4].eof())
+		while (readfile[4].peek() != EOF)
 			all_graduate_and_ta.emplace_back(make_shared<graduate>(readfile[4]));
 		readfile[4].close();
-		while (!readfile[7].eof())
+		while (readfile[4].peek() != EOF)
 			all_graduate_and_ta.emplace_back(make_shared<graduate>(readfile[7]));
 		readfile[7].close();
 
@@ -299,7 +313,7 @@ database::database(const string& n_filename, const string& password, rtype n_ope
 		{
 			//找父节点
 			find_father = false;
-			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr++)
+			for (auto itr2 = all_departments.begin(); itr2 != all_departments.end(); itr2++)
 			{
 				if ((*itr2)->getuid() == (*itr)->getfatheruid())//若找到父节点
 				{
@@ -499,19 +513,43 @@ void database::clear_people(const std::string& password)
 void database::save(const string& n_filename) const
 {
 	vector<string> n_path;
-	if (n_filename.empty())n_path = path;
+	if (n_filename.empty())
+	{
+		n_path = path;
+	}
 	else
 	{
-		//生成文件路径（注：在这一步不保存密码）
-		string path_com = n_filename + "\\" + n_filename;
-		n_path.emplace_back(path_com + ".node");
-		n_path.emplace_back(path_com + ".department");
-		n_path.emplace_back(path_com + ".people");
-		n_path.emplace_back(path_com + ".student");
-		n_path.emplace_back(path_com + ".graduate");
-		n_path.emplace_back(path_com + ".teacher");
-		n_path.emplace_back(path_com + ".prof");
-		n_path.emplace_back(path_com + ".ta");
+		//生成文件路径
+		int last_slash_index = n_filename.find_last_of('\\', n_filename.length());
+		string raw_filename;//不包含路径的文件名
+		if (last_slash_index == std::string::npos)
+			raw_filename = n_filename;
+		else raw_filename = string(n_filename, last_slash_index + 1);
+
+		//创建文件夹
+		if (_mkdir(n_filename.c_str()) != 0)//若创建文件夹失败
+			throw FileException(n_filename);
+
+		string path_com = n_filename + "\\" + raw_filename;
+		n_path.emplace_back(path_com + "_node.dat");
+		n_path.emplace_back(path_com + "_department.dat");
+		n_path.emplace_back(path_com + "_people.dat");
+		n_path.emplace_back(path_com + "_student.dat");
+		n_path.emplace_back(path_com + "_graduate.dat");
+		n_path.emplace_back(path_com + "_teacher.dat");
+		n_path.emplace_back(path_com + "_prof.dat");
+		n_path.emplace_back(path_com + "_ta.dat");
+		n_path.emplace_back(path_com + "_password.dat");
+		
+		//保存密码
+		ofstream writepwd(n_path[8], ios::binary);
+		if (!writepwd.good())
+		{
+			writepwd.close();
+			throw FileException(n_path[8]);
+		}
+		writepwd.write((char*)password_hash, 32 * sizeof(uint8_t));
+		writepwd.close();
 	}
 
 	//构建ofstream类对象的vector
@@ -531,11 +569,13 @@ void database::save(const string& n_filename) const
 	unsigned int max_uid = node::getmaxuid();
 	unsigned int max_people_uid = People::getmaxpeopleuid();
 	writefile[0].write((char*)&max_uid, sizeof(unsigned int));
-	writefile[0].close();
 	writefile[2].write((char*)&max_people_uid, sizeof(unsigned int));
 
 	//把整个树写到文件里
 	save_by_subtree(root, writefile);
+
+	for (int i = 0; i < 8; i++)
+		writefile[i].close();
 }
 
 bool database::verify_password(const string& password) const
@@ -595,7 +635,8 @@ shared_ptr<People> database::search_people_by_id_card(const string& n_id_card, c
 	}
 	else
 	{
-		if (n_id_card == subroot->getname())return dynamic_pointer_cast<People, node>(subroot);
+		auto cur_people = dynamic_pointer_cast<People, node>(subroot);
+		if (n_id_card == cur_people->getidcard())return cur_people;
 		else return shared_ptr<People>();
 	}
 }

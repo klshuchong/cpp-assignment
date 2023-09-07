@@ -69,6 +69,11 @@ void userInterface::start()
 		errs << ex.info() << endl;
 		return;
 	}
+	catch (const std::exception& ex)
+	{
+		errs << ex.what() << endl;
+		return;
+	}
 
 	//显示欢迎界面
 	welcome();
@@ -77,13 +82,20 @@ void userInterface::start()
 	interface_type current_itf = menu_t; //当前界面类型，初值为主菜单
 	try
 	{
-		os << string(32, '=');//输出32个=
 		while (current_itf != exit_t)
+		{
+			os << string(32, '=') << endl;//输出32个=
 			current_itf = (this->*itf[(int)current_itf])();
+		}
 	}
 	catch (const MyException& ex)
 	{
 		errs << ex.info() << endl;
+		return;
+	}
+	catch (const std::exception& ex)
+	{
+		errs << ex.what() << endl;
 		return;
 	}
 
@@ -108,6 +120,9 @@ int userInterface::choose(const list<string>& msg, const string& quit_msg)
 		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		errs << "输入必须为不超过" << msg.size() << "的非负整数。请重新输入：";
 	}
+	//清除缓冲区，否则之后调用getline()时没有输入机会
+	is.clear();
+	is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 	if (choice == msg.size())return -1;
 	else return choice;
@@ -144,19 +159,21 @@ void userInterface::create()
 {
 	os << "请输入文件名兼公司名称（可包含路径）。请注意，公司名称设置后不可修改。";
 	std::getline(is, filename);
-	os << "请设置密码（不少于8个字符）：";
+	os << "请设置密码：";
 	string password = input_password();
-	os << "请再次输入密码：";
+	os << endl << "请再次输入密码：";
 	string password2 = input_password();
 	//若两次输入的密码不一致，则要求重新输入
 	while (password != password2)
 	{
+		os << endl;
 		errs << "两次输入的密码不一致。" << endl;
-		os << "请重新设置密码（不少于8个字符）：";
+		os << "请重新设置密码：";
 		password = input_password();
-		os << "请再次输入密码：";
+		os << endl << "请再次输入密码：";
 		password2 = input_password();
 	}
+	os << endl;
 
 	//创建数据库
 	db = make_shared<database>(filename, password, database::Create);
@@ -168,6 +185,7 @@ void userInterface::open()
 	std::getline(is, filename);
 	os << "请输入密码：";
 	string password = input_password();
+	os << endl;
 
 	while (1)
 	{
@@ -178,17 +196,17 @@ void userInterface::open()
 		catch (const MyException& ex)
 		{
 			errs << ex.info() << endl;
-			os << "文件打开失败。是否重新选择文件？";
-			switch (choose(list<string>{"重新选择文件"}))
+			os << "文件打开失败。请检查文件路径和密码是否正确。" << endl;
+			switch (choose(list<string>{"重新输入"}))
 			{
 			case -1:
 				throw MyException("");//抛一个异常，这样就能进入start()的异常处理程序从而结束程序
 			case 0:
 				os << "请输入文件名（可包含路径）：";
-				string filename;
 				std::getline(is, filename);
 				os << "请输入密码：";
-				string password = input_password();
+				password = input_password();
+				os << endl;
 				continue;
 			}
 		}
@@ -205,7 +223,7 @@ void userInterface::welcome()
 
 userInterface::interface_type userInterface::menu()
 {
-	switch (choose(list<string>{"查看组织架构", "查找人员", "显示某类人员", "人员排序", "清空组织架构", "清空人员信息", "保存数据副本", "修改密码"}, "保存并退出"))
+	switch (choose(list<string>{"查看组织架构", "查找人员", "显示某类人员", "人员排序", "清空组织架构", "清空人员信息", "保存/另存为", "修改密码"}, "保存并退出"))
 	{
 	case 0: return view_structure_t;
 	case 1: return search_people_t;
@@ -222,7 +240,7 @@ userInterface::interface_type userInterface::menu()
 userInterface::interface_type userInterface::view_structure()
 {
 	if (db->getcurrent()->getnodetype() != node::NodeType::Department)
-		throw NodeTypeException(node::NodeType::Department);
+		return view_people_t;
 	os << *(db->getcurrent());//打印该部门信息
 	list<string> choice_list;
 	auto all_child = db->getcurrent()->get_child();
@@ -347,13 +365,14 @@ userInterface::interface_type userInterface::move_dept()
 	os << "请选择要移动到的部门。" << endl;
 	auto n_dept = db->getcurrent();
 	auto original_father = n_dept->getfather();
-	n_dept->setfather(shared_ptr<department>());//先将n_dept从组织脱离，防止组织成环
 	while (db->to_father());//将db的current移到根节点
+	n_dept->setfather(shared_ptr<department>());//将n_dept从组织脱离，防止组织成环
 	set<shared_ptr<node>, defaultNodeCmp> all_child;
 	list<string> choice_list;
 	int choice, dept_num;
 	while (1)
 	{
+		choice_list.clear();
 		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
 		all_child = db->getcurrent()->get_child();
 		dept_num = 0;
@@ -435,6 +454,7 @@ userInterface::interface_type userInterface::clear_structure()
 {
 	os << "您将要执行清除组织架构操作，请输入密码：";
 	string password = input_password();
+	os << endl;
 	try
 	{
 		db->clear_structure(password);
@@ -443,7 +463,7 @@ userInterface::interface_type userInterface::clear_structure()
 	{
 		os << "密码错误，取消清除组织架构操作。" << endl;
 	}
-	return view_structure_t;
+	return menu_t;
 }
 
 userInterface::interface_type userInterface::add_people()
@@ -482,7 +502,7 @@ userInterface::interface_type userInterface::add_people()
 		catch (const MyException& ex)
 		{
 			errs << ex.info() << endl;
-			os << "身份证号不合法或已存在。是否重新输入？";
+			os << "身份证号不合法或已存在。是否重新输入？" << endl;
 			switch (choose(list<string>{"是"}))
 			{
 			case 0: continue;
@@ -623,6 +643,8 @@ userInterface::interface_type userInterface::search_people()
 			is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			errs << "输入的必须为整数。请重新输入：";
 		}
+		is.clear();
+		is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		auto result = db->search_people_by_people_uid(people_uid);
 		if (result)os << *result << endl;
 		else os << "系统中找不到编号为 " << people_uid << " 的人员。" << endl;
@@ -679,11 +701,23 @@ userInterface::interface_type userInterface::update_people()
 		catch (const IDException& ex)
 		{
 			errs << ex.info() << endl;
-			os << "身份证号不合法或已存在。是否重新输入？" << endl;
+			os << "身份证号不合法。是否重新输入？" << endl;
 			switch (choose(list<string>{"是"}, "撤销更改并返回人员视图"))
 			{
 			case 0: continue;
 			default: 
+				db->update_people_info(original_name);
+				return view_people_t;
+			}
+		}
+		catch (const SameIDException& ex)
+		{
+			errs << ex.info() << endl;
+			os << "身份证号已存在。是否重新输入？" << endl;
+			switch (choose(list<string>{"是"}, "撤销更改并返回人员视图"))
+			{
+			case 0: continue;
+			default:
 				db->update_people_info(original_name);
 				return view_people_t;
 			}
@@ -719,6 +753,7 @@ userInterface::interface_type userInterface::move_people()
 	int choice, dept_num;
 	while (1)
 	{
+		choice_list.clear();
 		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
 		all_child = db->getcurrent()->get_child();
 		dept_num = 0;
@@ -735,7 +770,7 @@ userInterface::interface_type userInterface::move_people()
 		if (db->getcurrent()->getfather())
 			choice_list.push_back("返回 " + db->getcurrent()->getfather()->getname());
 		choice = choose(choice_list, "取消移动人员");
-		if (choice == -1)break;
+		if (choice == -1)return view_structure_t;
 		else if (choice < dept_num)//若选择转到下级部门
 		{
 			auto itr = all_child.begin();
@@ -753,7 +788,8 @@ userInterface::interface_type userInterface::move_people()
 			auto n_people_people = dynamic_pointer_cast<People, node>(n_people);
 			db->add_new_people(n_people_people);
 			os << "移动人员成功。" << endl;
-			break;
+			db->to_child(n_people);
+			return view_people_t;
 		}
 		else if (choice == dept_num + 1)//若选择转到上级部门
 		{
@@ -761,16 +797,16 @@ userInterface::interface_type userInterface::move_people()
 			continue;
 		}
 	}
-	return view_people_t;
 }
 
 userInterface::interface_type userInterface::remove_people()
 {
-	os << "您确定要删除人员 " << db->getcurrent()->getname() << " 吗？";
+	os << "您确定要删除人员 " << db->getcurrent()->getname() << " 吗？" << endl;
 	switch (choose(list<string>{"是"}))
 	{
 	case 0: 
 		db->delete_people();
+		os << "删除人员成功。" << endl;
 		return view_structure_t;
 	default: return view_people_t;
 	}
@@ -788,6 +824,7 @@ userInterface::interface_type userInterface::set_advisor()
 	}
 
 	os << "请选择导师。" << endl;
+	shared_ptr<node> n_gra = db->getcurrent();
 	while (db->to_father());//将db的current移到根节点
 	set<shared_ptr<node>, defaultNodeCmp> all_child;
 	list<string> choice_list;
@@ -798,6 +835,7 @@ userInterface::interface_type userInterface::set_advisor()
 		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
 		all_child = db->getcurrent()->get_child();
 		dept_num = 0;
+		choice_list.clear();
 		prof_vec.clear();
 		for (auto itr = all_child.begin(); itr != all_child.end(); itr++)
 		{
@@ -815,7 +853,11 @@ userInterface::interface_type userInterface::set_advisor()
 		if (db->getcurrent()->getfather())
 			choice_list.push_back("返回 " + db->getcurrent()->getfather()->getname());
 		choice = choose(choice_list, "取消设置导师");
-		if (choice == -1)break;
+		if (choice == -1)
+		{
+			db->getcurrent() = n_gra;
+			break;
+		}
 		else if (choice < dept_num)//若选择转到下级部门
 		{
 			auto itr = all_child.begin();
@@ -830,11 +872,13 @@ userInterface::interface_type userInterface::set_advisor()
 		}
 		else if (choice < dept_num + prof_vec.size())//若选择了某个导师
 		{
+			db->getcurrent() = n_gra;
 			db->assign_advisor(prof_vec[choice - dept_num]);
 			os << "设置导师成功。" << endl;
+			db->to_child(prof_vec[choice - dept_num]);
 			break;
 		}
-		else if (choice == dept_num + prof_vec.size() + 1)//若选择转到上级部门
+		else if (choice == dept_num + prof_vec.size())//若选择转到上级部门
 		{
 			db->to_father();
 			continue;
@@ -853,7 +897,7 @@ userInterface::interface_type userInterface::remove_advisor()
 		os << "该研究生暂无导师。" << endl;
 		return view_people_t;
 	}
-	os << "您确定要解除 " << cur_gra->getname() << " 与 " << cur_gra->getadvisor()->getname() <<" 的导学关系吗？";
+	os << "您确定要解除 " << cur_gra->getname() << " 与 " << cur_gra->getadvisor()->getname() << " 的导学关系吗？" << endl;
 	switch (choose(list<string>{"是"}))
 	{
 	case 0:
@@ -944,44 +988,34 @@ userInterface::interface_type userInterface::clear_people()
 {
 	os << "您将要执行清除人员操作，请输入密码：";
 	string password = input_password();
+	os << endl;
 	try
 	{
 		db->clear_people(password);
 	}
 	catch (const PasswordException&)//若捕获异常，说明密码错误
 	{
-		os << "密码错误，取消清除组织架构操作。" << endl;
+		os << "密码错误，取消清除人员操作。" << endl;
 	}
-	return view_structure_t;
+	return menu_t;
 }
 
 userInterface::interface_type userInterface::save_new()
 {
-	os << "请输入新的文件名（可包含路径）：";
+	os << "请输入新的文件名（可包含路径），若输入为空表示保存到原文件夹：";
 	string n_filename;
 	std::getline(is, n_filename);
-	while (n_filename == filename)
-	{
-		errs << "新文件名与原文件名相同。是否重新输入？" << endl;
-		switch (choose(list<string>{"是"}))
-		{
-		case 0:
-			os << "请输入新的文件名（可包含路径）：";
-			std::getline(is, n_filename);
-			break;
-		default: return menu_t;
-		}
-	}
 	try
 	{
-		db->save(n_filename);
+		if (n_filename == filename)db->save();
+		else db->save(n_filename);
 	}
 	catch (const FileException& ex)
 	{
 		errs << ex.info() << endl << "数据保存失败。" << endl;
 		return menu_t;
 	}
-	os << "数据已成功另存到文件夹" << n_filename << "。" << endl;
+	os << "数据已成功保存到文件夹" << n_filename << "。" << endl;
 	return menu_t;
 }
 
@@ -989,6 +1023,7 @@ userInterface::interface_type userInterface::change_password()
 {
 	os << "请输入原来的密码：";
 	string original_pwd = input_password();
+	os << endl;
 	if (!(db->verify_password(original_pwd)))
 	{
 		errs << "密码错误，修改密码操作结束。" << endl;
@@ -996,8 +1031,10 @@ userInterface::interface_type userInterface::change_password()
 	}
 	os << "请输入新密码：";
 	string new_pwd = input_password();
+	os << endl;
 	os << "请再次输入新密码：";
 	string new_pwd2 = input_password();
+	os << endl;
 	if (new_pwd2 != new_pwd)
 	{
 		errs << "两次输入的密码不一致，修改密码操作结束。" << endl;
@@ -1010,17 +1047,21 @@ userInterface::interface_type userInterface::change_password()
 
 void userInterface::exit()
 {
-	os << "正在保存数据..." << endl;
-	try
+	if (db)//如果已经创建了数据库
 	{
-		db->save();
+		os << "正在保存数据..." << endl;
+		try
+		{
+			db->save();
+		}
+		catch (const FileException& ex)
+		{
+			errs << ex.info() << endl;
+			errs << "数据保存失败。" << endl;
+			return;
+		}
+		os << "数据已成功保存到文件夹" << filename << "。" << endl;
 	}
-	catch(const FileException& ex)
-	{
-		errs << ex.info() << endl;
-		errs << "数据保存失败。" << endl;
-		return;
-	}
-	os << "数据已成功保存到文件夹" << filename << "。" << endl;
 	os << "感谢您使用本系统，下次再见！" << endl;
+	is.get();
 }

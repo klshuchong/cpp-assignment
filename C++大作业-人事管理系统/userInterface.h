@@ -127,7 +127,7 @@ private:
 	//清除所有人员
 	interface_type clear_people();
 
-	//将组织架构另存为新文件
+	//将组织架构保存或另存为新文件
 	interface_type save_new();
 
 	//修改密码
