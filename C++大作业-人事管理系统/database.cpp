@@ -519,7 +519,7 @@ void database::save(const string& n_filename) const
 	}
 	else
 	{
-		//生成文件路径（注：在这一步不保存密码）
+		//生成文件路径
 		int last_slash_index = n_filename.find_last_of('\\', n_filename.length());
 		string raw_filename;//不包含路径的文件名
 		if (last_slash_index == std::string::npos)
@@ -527,13 +527,10 @@ void database::save(const string& n_filename) const
 		else raw_filename = string(n_filename, last_slash_index + 1);
 
 		//创建文件夹
-		if (opentype == rtype::Create)
-		{
-			if (_mkdir(n_filename.c_str()) != 0)//若创建文件夹失败
-				throw FileException(n_filename);
-		}
+		if (_mkdir(n_filename.c_str()) != 0)//若创建文件夹失败
+			throw FileException(n_filename);
 
-		string path_com = filename + "\\" + raw_filename;
+		string path_com = n_filename + "\\" + raw_filename;
 		n_path.emplace_back(path_com + "_node.dat");
 		n_path.emplace_back(path_com + "_department.dat");
 		n_path.emplace_back(path_com + "_people.dat");
@@ -542,6 +539,17 @@ void database::save(const string& n_filename) const
 		n_path.emplace_back(path_com + "_teacher.dat");
 		n_path.emplace_back(path_com + "_prof.dat");
 		n_path.emplace_back(path_com + "_ta.dat");
+		n_path.emplace_back(path_com + "_password.dat");
+		
+		//保存密码
+		ofstream writepwd(n_path[8], ios::binary);
+		if (!writepwd.good())
+		{
+			writepwd.close();
+			throw FileException(n_path[8]);
+		}
+		writepwd.write((char*)password_hash, 32 * sizeof(uint8_t));
+		writepwd.close();
 	}
 
 	//构建ofstream类对象的vector
@@ -561,11 +569,13 @@ void database::save(const string& n_filename) const
 	unsigned int max_uid = node::getmaxuid();
 	unsigned int max_people_uid = People::getmaxpeopleuid();
 	writefile[0].write((char*)&max_uid, sizeof(unsigned int));
-	writefile[0].close();
 	writefile[2].write((char*)&max_people_uid, sizeof(unsigned int));
 
 	//把整个树写到文件里
 	save_by_subtree(root, writefile);
+
+	for (int i = 0; i < 8; i++)
+		writefile[i].close();
 }
 
 bool database::verify_password(const string& password) const
@@ -625,7 +635,8 @@ shared_ptr<People> database::search_people_by_id_card(const string& n_id_card, c
 	}
 	else
 	{
-		if (n_id_card == subroot->getname())return dynamic_pointer_cast<People, node>(subroot);
+		auto cur_people = dynamic_pointer_cast<People, node>(subroot);
+		if (n_id_card == cur_people->getidcard())return cur_people;
 		else return shared_ptr<People>();
 	}
 }

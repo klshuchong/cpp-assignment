@@ -33,7 +33,10 @@ public:
 	const node& operator=(const node&) = delete;
 
 	//析构函数（需要更新一下父亲节点）
-	virtual ~node() { setfather(nullptr); }
+	virtual ~node()
+	{
+		if (!father.expired())setfather(nullptr);
+	}
 
 	//获得姓名
 	std::string getname() const { return std::string(name); }

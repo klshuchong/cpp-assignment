@@ -93,12 +93,12 @@ void People::print(ostream& os) const
 	os << "人员类型：";
 	switch (node_type)
 	{
-	case node::NodeType::None:os << "无" << endl << "编号：";
-	case node::NodeType::Student:os << "学生" << endl << "学号：";
-	case node::NodeType::Graduate:os << "研究生" << endl << "学号：";
-	case node::NodeType::Teacher:os << "教师" << endl << "工作证号：";
-	case node::NodeType::Prof:os << "教授" << endl << "工作证号：";
-	case node::NodeType::Ta:os << "助教" << endl << "学号：";
+	case node::NodeType::None:os << "无" << endl << "编号："; break;
+	case node::NodeType::Student:os << "学生" << endl << "学号："; break;
+	case node::NodeType::Graduate:os << "研究生" << endl << "学号："; break;
+	case node::NodeType::Teacher:os << "教师" << endl << "工作证号："; break;
+	case node::NodeType::Prof:os << "教授" << endl << "工作证号："; break;
+	case node::NodeType::Ta:os << "助教" << endl << "学号："; break;
 	}
 	os << people_uid << endl;
 	os << "所属部门：";
@@ -125,6 +125,7 @@ void People::setidcard(const string& n_id)
 	if (!is_valid_id(n_id))throw IDException(n_id);
 
 	//检测该身份证号是否已存在
+	if (id_set.find(id_card) != id_set.end())id_set.erase(id_card);
 	if (!(id_set.insert(n_id).second))throw SameIDException(n_id);
 	strcpy_s(id_card, n_id.c_str());
 

@@ -37,7 +37,7 @@ public:
 	~database() = default;
 
 	//获取当前节点
-	std::shared_ptr<node> getcurrent() const { return current; }
+	std::shared_ptr<node>& getcurrent() { return current; }
 
 	//将current移到其父节点，若current为根节点则返回false，否则移动current返回true
 	bool to_father()

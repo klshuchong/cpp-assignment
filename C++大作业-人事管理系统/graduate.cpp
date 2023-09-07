@@ -26,7 +26,11 @@ graduate::graduate(ifstream& ifs) :People(ifs, node::NodeType::Graduate)
 void graduate::print(ostream& os) const
 {
 	People::print(os);
-	os << "导师：" << advisor.lock()->getname() << endl;
+	if (advisor.lock())
+	{
+		os << "导师：" << advisor.lock()->getname() << endl;
+	}
+	else os << "导师：暂无" << endl;
 }
 
 void graduate::fwrite(ofstream& ofs) const
@@ -50,10 +54,14 @@ bool graduate::remove_advisor()
 {
 	if (!advisor.lock())return false;
 
-	//更新导师端的信息
-	advisor.lock()->stus.erase(std::dynamic_pointer_cast<graduate>(shared_from_this()));
+	if (!advisor.expired())
+	{
+		//更新导师端的信息
+		advisor.lock()->stus.erase(std::dynamic_pointer_cast<graduate>(shared_from_this()));
 
-	advisor = shared_ptr<prof>();
-	advisor_uid = -1;
-	return true;
+		advisor = shared_ptr<prof>();
+		advisor_uid = -1;
+		return true;
+	}
+	else return false;
 }
