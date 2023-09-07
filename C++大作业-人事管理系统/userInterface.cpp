@@ -223,7 +223,7 @@ void userInterface::welcome()
 
 userInterface::interface_type userInterface::menu()
 {
-	switch (choose(list<string>{"查看组织架构", "查找人员", "显示某类人员", "人员排序", "清空组织架构", "清空人员信息", "保存数据副本", "修改密码"}, "保存并退出"))
+	switch (choose(list<string>{"查看组织架构", "查找人员", "显示某类人员", "人员排序", "清空组织架构", "清空人员信息", "保存/另存为", "修改密码"}, "保存并退出"))
 	{
 	case 0: return view_structure_t;
 	case 1: return search_people_t;
@@ -365,13 +365,14 @@ userInterface::interface_type userInterface::move_dept()
 	os << "请选择要移动到的部门。" << endl;
 	auto n_dept = db->getcurrent();
 	auto original_father = n_dept->getfather();
-	n_dept->setfather(shared_ptr<department>());//先将n_dept从组织脱离，防止组织成环
 	while (db->to_father());//将db的current移到根节点
+	n_dept->setfather(shared_ptr<department>());//将n_dept从组织脱离，防止组织成环
 	set<shared_ptr<node>, defaultNodeCmp> all_child;
 	list<string> choice_list;
 	int choice, dept_num;
 	while (1)
 	{
+		choice_list.clear();
 		os << "当前浏览部门：" << db->getcurrent()->getname() << endl;
 		all_child = db->getcurrent()->get_child();
 		dept_num = 0;
@@ -975,31 +976,20 @@ userInterface::interface_type userInterface::clear_people()
 
 userInterface::interface_type userInterface::save_new()
 {
-	os << "请输入新的文件名（可包含路径）：";
+	os << "请输入新的文件名（可包含路径），若输入为空表示保存到原文件夹：";
 	string n_filename;
 	std::getline(is, n_filename);
-	while (n_filename == filename)
-	{
-		errs << "新文件名与原文件名相同。是否重新输入？" << endl;
-		switch (choose(list<string>{"是"}))
-		{
-		case 0:
-			os << "请输入新的文件名（可包含路径）：";
-			std::getline(is, n_filename);
-			break;
-		default: return menu_t;
-		}
-	}
 	try
 	{
-		db->save(n_filename);
+		if (n_filename == filename)db->save();
+		else db->save(n_filename);
 	}
 	catch (const FileException& ex)
 	{
 		errs << ex.info() << endl << "数据保存失败。" << endl;
 		return menu_t;
 	}
-	os << "数据已成功另存到文件夹" << n_filename << "。" << endl;
+	os << "数据已成功保存到文件夹" << n_filename << "。" << endl;
 	return menu_t;
 }
 

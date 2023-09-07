@@ -63,7 +63,11 @@ bool node::setfather(const shared_ptr<department>& n_father)
 	else
 	{
 		father_uid = -1;
-		if (father.lock())father.lock()->child.erase(shared_from_this());
+		if (father.lock())
+		{
+			father.lock()->child.erase(shared_from_this());
+			father = shared_ptr<department>();
+		}
 		return true;
 	}
 }
