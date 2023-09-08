@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access">
+  <Class Name="node">
+    <Position X="2.75" Y="6.5" Width="2" />
+    <NestedTypes>
+      <Enum Name="node::NodeType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>base.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AQQAACAAAAAFEACAABEAQAAFAQAEAAMAAAAgVAAABQA=</HashCode>
+      <FileName>base.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="defaultNodeCmp">
+    <Position X="17.25" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>base.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="department">
+    <Position X="0.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAACAAACAAAARAQAAAAAAAAAgAAAABAA=</HashCode>
+      <FileName>base.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="People">
+    <Position X="5.5" Y="6.5" Width="1.75" />
+    <NestedTypes>
+      <Enum Name="People::Gender" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>base.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>BiQgAAAAAIAAAAiAAAEIgCgBAQEAkAAAAiAgAAACAAA=</HashCode>
+      <FileName>base.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="database">
+    <Position X="21.5" Y="6.5" Width="2.5" />
+    <NestedTypes>
+      <Enum Name="database::rtype" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>database.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AgCQQBBAIADAAEDAABEiQAQAmAAAAEAIIACqAJAABAA=</HashCode>
+      <FileName>database.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Date">
+    <Position X="19.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAAAAAAAAgAAAAAAAAAAAFAgAiAAAgAQI=</HashCode>
+      <FileName>Date.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="student">
+    <Position X="8.75" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAEAAAAAAAAABAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="graduate">
+    <Position X="8.75" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAwgQAAAAABAACACAAAAAAABAAAAAAAACAAgAAAAAAQ=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="teacher">
+    <Position X="11.5" Y="6.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAYAAAACAAAAAAAAAAAAAAABIAAAAAAAAAAgAAABAAA=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="teacherCmpByPay">
+    <Position X="17.25" Y="8.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="prof">
+    <Position X="11.5" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAQABAAAAAAAAAAAAAAAAAABAABAAAAAAkAoAEAAAAA=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TA">
+    <Position X="14.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQACAAAAAAAAAAAAAAAAAABAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Derived_people.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MyException">
+    <Position X="10" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAQAAAAAAAACA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileException">
+    <Position X="12.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAAEAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DataException">
+    <Position X="16.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAQAAIAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DateException">
+    <Position X="1" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAEQgAgAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IDException">
+    <Position X="5.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAACAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NodeTypeException">
+    <Position X="10" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAQAAAAAAAAQA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PasswordException">
+    <Position X="14.5" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SameNameDepartmentException">
+    <Position X="18.5" Y="3.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAABAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SameIDException">
+    <Position X="3.25" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAQAAAAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NotAChildException">
+    <Position X="7.75" Y="3.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAQAAAAAAAAAA=</HashCode>
+      <FileName>Exception.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="userInterface">
+    <Position X="25" Y="6.5" Width="2.25" />
+    <NestedTypes>
+      <Enum Name="userInterface::interface_type" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>userInterface.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AABAABBAAAhSAECkAyAAAEgGAAACAECAQAHgACDIBIA=</HashCode>
+      <FileName>userInterface.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ly::Sha256">
+    <Position X="17.25" Y="10" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ABAAEAGAAgCBAADAQBAAAACAAACEAAQAECAgAAAAAAA=</HashCode>
+      <FileName>sha256.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
